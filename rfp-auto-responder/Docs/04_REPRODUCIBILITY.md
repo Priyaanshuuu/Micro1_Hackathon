@@ -1,41 +1,42 @@
 # Reproducibility — Environment Setup & Running the Demo
 
 ## Prerequisites
-- **Node.js** ≥ 18.x and **npm** ≥ 9.x — check with `node -v` and `npm -v`.
+- **Python** ≥ 3.10 — check with `python --version`.
 - An **OpenAI API key** with access to a chat-completions-capable model.
 - No external database or paid vector store required — everything runs against an in-process local vector store, so there's nothing else to provision.
 
 ## Key Dependencies
 | Package | Role |
 |---|---|
-| `@langchain/langgraph` | Defines the agent state graph — nodes, edges, and the retry/escalation routing logic. |
-| `@langchain/openai` | LLM calls (drafting, compliance checks) and embeddings (indexing + retrieval). |
-| `MemoryVectorStore` / `HNSWLib` | Local vector store holding the synthetic SOC2/InfoSec policy corpus — no external service needed. |
-| `papaparse` | Parses the input RFP CSV and writes the output response CSV. |
+| `langgraph` | Defines the agent state graph — nodes, edges, and the retry/escalation routing logic. |
+| `langchain-openai` | LLM calls (drafting, compliance checks) and embeddings (indexing + retrieval). |
+| `langchain-core` | Core LangChain primitives for RAG and vector stores. |
+| `pandas` | Parses the input RFP CSV and writes the output response CSV. |
+| `pydantic` | Type validation and structured output parsing. |
 
 ## Project Structure (Target Layout)
 ```
 rfp-auto-responder/
-├── docs/                        # This documentation set
+├── Docs/                        # This documentation set
 ├── data/
 │   └── policies/                # Synthetic SOC2 / InfoSec policy source documents
 ├── samples/
 │   └── sample_rfp.csv           # Small synthetic RFP question set for demo/testing
 ├── src/
 │   ├── agents/
-│   │   ├── searcher.ts
-│   │   ├── drafter.ts
-│   │   └── compliance.ts
+│   │   ├── searcher.py
+│   │   ├── drafter.py
+│   │   └── compliance.py
 │   ├── graph/
-│   │   └── orchestrator.ts      # LangGraph state graph wiring the agents together
+│   │   └── orchestrator.py      # LangGraph state graph wiring the agents together
 │   ├── ingest/
-│   │   └── buildVectorStore.ts  # One-time script to embed data/policies into the vector store
-│   ├── types.ts
-│   └── index.ts                 # CLI entrypoint
+│   │   └── build_vector_store.py  # One-time script to embed data/policies into the vector store
+│   ├── types.py
+│   └── main.py                  # CLI entrypoint
 ├── output/                      # Generated at runtime: responses + human review queue
-├── .env.example
-├── package.json
-└── tsconfig.json
+├── .env
+├── requirements.txt
+└── README.md
 ```
 *This is the target structure we'll build toward file-by-file in Step 2 — exact filenames may be refined slightly as we go, and this doc will be kept in sync.*
 
@@ -51,20 +52,22 @@ MAX_COMPLIANCE_RETRIES=2
 ```bash
 git clone <this-repo>
 cd rfp-auto-responder
-npm install
-cp .env.example .env   # then paste in your OPENAI_API_KEY
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+# Create .env and add your OPENAI_API_KEY
 ```
 
 ## Step 1 — Build the Vector Store
 Embeds the synthetic policy documents in `data/policies/` into a local vector index:
 ```bash
-npm run ingest
+python -m src.ingest.build_vector_store
 ```
 **Expected output:** a log line confirming how many policy chunks were embedded and indexed.
 
 ## Step 2 — Run the Pipeline Against a Sample RFP
 ```bash
-npm run start -- --input samples/sample_rfp.csv --output output/responses.csv
+python -m src.main --input samples/sample_rfp.csv --output output/responses.csv
 ```
 **Expected output:**
 - `output/responses.csv` — one row per input question, with columns: `question`, `answer`, `status` (`approved` / `escalated`), `source_citations`, `retries`.
@@ -73,15 +76,16 @@ npm run start -- --input samples/sample_rfp.csv --output output/responses.csv
 
 ## Verifying Success
 - Every row in `samples/sample_rfp.csv` should appear exactly once in `output/responses.csv`.
-- `npm test` runs the rubric-graded eval set described in `03_AGENT_EVALUATION.md` against the sample corpus and prints the score distribution and false-pass rate.
+- `python -m pytest tests/` runs the rubric-graded eval set described in `03_AGENT_EVALUATION.md` against the sample corpus and prints the score distribution and false-pass rate.
 
 ## Troubleshooting
 | Symptom | Likely Cause |
 |---|---|
 | `OPENAI_API_KEY is not set` | `.env` wasn't created, or isn't in the project root. |
-| Empty or irrelevant retrievals | `npm run ingest` wasn't (re-)run after changing files in `data/policies/`. |
+| Empty or irrelevant retrievals | `python -m src.ingest.build_vector_store` wasn't (re-)run after changing files in `data/policies/`. |
 | Every question escalates | `MAX_COMPLIANCE_RETRIES` is too low, or the Compliance Agent's rules are stricter than the synthetic policy corpus can satisfy. |
 | Rate-limit errors on a large CSV | Reduce the batch size or add a small delay between requests — configurable in the CLI entrypoint once we build it in Step 2. |
+| Import errors | Ensure virtual environment is activated and all dependencies installed. |
 
 ---
 **Related:** `01_USER_AND_PROBLEM.md` · `02_BOTTLENECK.md` · `03_AGENT_EVALUATION.md`

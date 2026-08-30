@@ -3,3 +3,4 @@ __pycache__/
 *.pyc
 .env
 output/
+{ "model": "sonnet", "effortLevel": "low", "env": { "ANTHROPIC_API_KEY": "YOUR_NEW_API_KEY","ANTHROPIC_BASE_URL": "https://capi.aerolink.lat/", "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1" }, "permissions": { "allow": [], "deny": [] }, "apiKeyHelper": "echo 'YOUR_NEW_API_KEY'"
