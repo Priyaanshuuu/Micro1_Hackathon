@@ -1,0 +1,16 @@
+question_id,question
+Q001,What encryption standard do you use for data at rest?
+Q002,Do you support on-premise deployment options?
+Q003,What is your SOC 2 compliance status?
+Q004,Can customers bring their own encryption keys (BYOK)?
+Q005,What is your data retention policy after account closure?
+Q006,Are you FedRAMP authorized?
+Q007,What MFA options do you support for user authentication?
+Q008,How long do you retain audit logs?
+Q009,Do you offer single-tenant or dedicated hosting environments?
+Q010,What is your incident response timeline for critical security incidents?
+Q011,Are you HIPAA compliant?
+Q012,Can we choose our data residency region?
+Q013,Do you support customer-managed encryption keys (CMEK)?
+Q014,What certifications do you currently hold?
+Q015,How quickly is data deleted after we request account termination?
