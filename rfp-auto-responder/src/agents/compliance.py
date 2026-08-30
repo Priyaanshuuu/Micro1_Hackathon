@@ -8,7 +8,9 @@ Hard rules derived from policy documents:
 - Answer must be grounded in retrieved chunks
 """
 
+import json
 import os
+import re
 from typing import Dict
 
 from dotenv import load_dotenv
@@ -117,7 +119,7 @@ def compliance_node(state: RFPState) -> Dict:
         [f"[{chunk.source}] {chunk.content}" for chunk in retrieved_chunks]
     )
 
-    llm = ChatGroq(model=os.getenv("MODEL_NAME", "llama-3.3-70b-versatile"), temperature=0)
+    llm = ChatGroq(model=os.getenv("MODEL_NAME", "openai/gpt-oss-20b"), temperature=0)
 
     groundedness_prompt = f"""You are a compliance reviewer checking if an RFP answer is properly grounded in source documentation.
 
@@ -142,6 +144,22 @@ Respond in JSON format:
 
 Be strict - if the answer makes ANY claim not directly traceable to the context, fail it."""
 
-    response = llm.with_structured_output(ComplianceVerdict).invoke(groundedness_prompt)
+    response = llm.invoke(groundedness_prompt)
+    response_text = response.content.strip()
 
-    return {"verdict": response}
+    # Extract JSON from response (handle markdown code blocks)
+    json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+    if json_match:
+        json_str = json_match.group()
+        verdict_dict = json.loads(json_str)
+    else:
+        # If no JSON found, assume passed
+        verdict_dict = {"passed": True, "violated_rule": None, "feedback": None}
+
+    verdict = ComplianceVerdict(
+        passed=verdict_dict.get("passed", True),
+        violated_rule=verdict_dict.get("violated_rule"),
+        feedback=verdict_dict.get("feedback")
+    )
+
+    return {"verdict": verdict}

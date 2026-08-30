@@ -37,7 +37,7 @@ def searcher_node(state: RFPState) -> Dict:
     else:
         # Retry - incorporate feedback to refine search
         feedback = verdict.feedback
-        llm = ChatGroq(model=os.getenv("MODEL_NAME", "llama-3.3-70b-versatile"), temperature=0)
+        llm = ChatGroq(model=os.getenv("MODEL_NAME", "openai/gpt-oss-20b"), temperature=0)
 
         refine_prompt = f"""Given this RFP question and compliance feedback, generate a refined search query to find the correct policy information.
 
