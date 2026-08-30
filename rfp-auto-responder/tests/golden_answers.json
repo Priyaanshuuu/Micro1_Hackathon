@@ -1,0 +1,136 @@
+{
+  "evaluation_set": [
+    {
+      "question_id": "Q001",
+      "question": "What encryption standard do you use for data at rest?",
+      "golden_answer": "Data at rest is encrypted using AES-256. Keys are managed by AWS Key Management Service (KMS) using AWS-managed keys; customer-managed encryption keys (BYOK/CMEK) are not currently supported.",
+      "rubric": 3,
+      "rationale": "Correct, specific (AES-256), cites policy, distinguishes AWS-managed from customer-managed, factually accurate.",
+      "compliance_verdict": "passed",
+      "required_sources": ["data_security_and_hosting.md"]
+    },
+    {
+      "question_id": "Q002",
+      "question": "Do you support on-premise deployment options?",
+      "golden_answer": "No. Our platform is a multi-tenant SaaS solution hosted exclusively on AWS infrastructure (us-east-1 and eu-west-1). We do not offer on-premise, self-hosted, or single-tenant dedicated deployments.",
+      "rubric": 3,
+      "rationale": "Clear denial, specific regions cited, distinguishes SaaS from on-premise, compliant with policy.",
+      "compliance_verdict": "passed",
+      "required_sources": ["data_security_and_hosting.md"]
+    },
+    {
+      "question_id": "Q003",
+      "question": "What is your SOC 2 compliance status?",
+      "golden_answer": "We hold an active SOC 2 Type II certification covering Security, Availability, and Confidentiality trust-service criteria. The most recent audit was completed in July 2025.",
+      "rubric": 3,
+      "rationale": "Correct, cites Type II (not just Type I), specific audit date, compliant.",
+      "compliance_verdict": "passed",
+      "required_sources": ["compilance_certificates.md"]
+    },
+    {
+      "question_id": "Q004",
+      "question": "Can customers bring their own encryption keys (BYOK)?",
+      "golden_answer": "No, customer-managed encryption keys (BYOK/CMEK) are not supported. We use AWS Key Management Service (KMS) with AWS-managed keys to encrypt all data at rest.",
+      "rubric": 3,
+      "rationale": "Clear denial with reasoning, correct technical detail.",
+      "compliance_verdict": "passed",
+      "required_sources": ["data_security_and_hosting.md"]
+    },
+    {
+      "question_id": "Q005",
+      "question": "What is your data retention policy after account closure?",
+      "golden_answer": "After account closure, customer data is soft-deleted immediately (not accessible via UI/API). Hard deletion occurs within 30 days. Encrypted backups may retain data for up to 90 days for disaster recovery; after that no data remains.",
+      "rubric": 3,
+      "rationale": "All three timelines correct (immediate soft-delete, 30-day hard delete, 90-day backup), clear sequencing.",
+      "compliance_verdict": "passed",
+      "required_sources": ["data_retention_and_deletion.md"]
+    },
+    {
+      "question_id": "Q006",
+      "question": "Are you FedRAMP authorized?",
+      "golden_answer": "No. We are not currently FedRAMP authorized. FedRAMP certification is not among our current compliance certifications.",
+      "rubric": 3,
+      "rationale": "Clear denial, states current compliance status.",
+      "compliance_verdict": "passed",
+      "required_sources": ["compilance_certificates.md"],
+      "expected_escalation_reason": "Policy may not explicitly state FedRAMP denial; system should escalate to confirm before sending to government prospect"
+    },
+    {
+      "question_id": "Q007",
+      "question": "What MFA options do you support?",
+      "golden_answer": "We support TOTP (time-based one-time passwords) and SMS-based OTP. MFA is mandatory for all admin-level accounts and optional for standard user accounts. SAML 2.0 SSO is available on Enterprise plans but does not replace MFA.",
+      "rubric": 3,
+      "rationale": "Correct MFA methods, mandatory/optional distinction, SSO clarification.",
+      "compliance_verdict": "passed",
+      "required_sources": ["access_control_and_incident_response.md"]
+    },
+    {
+      "question_id": "Q008",
+      "question": "How long do you retain audit logs?",
+      "golden_answer": "Audit logs are retained for two (2) years from the date of event occurrence. Logs are deleted after that period unless a legal hold is in place.",
+      "rubric": 3,
+      "rationale": "Correct timeframe, mentions legal hold exception.",
+      "compliance_verdict": "passed",
+      "required_sources": ["access_control_and_incident_response.md"]
+    },
+    {
+      "question_id": "Q009",
+      "question": "Do you offer single-tenant or dedicated hosting?",
+      "golden_answer": "No. We offer only multi-tenant SaaS hosting on AWS (us-east-1, eu-west-1). Customer data resides in private VPC subnets protected by AWS WAF and IAM controls.",
+      "rubric": 3,
+      "rationale": "Clear denial, specific infrastructure detail (VPC, WAF, IAM), compliant.",
+      "compliance_verdict": "passed",
+      "required_sources": ["data_security_and_hosting.md"]
+    },
+    {
+      "question_id": "Q010",
+      "question": "What is your incident response timeline for critical (P0/P1) security incidents?",
+      "golden_answer": "For critical incidents: initial response within 1 hour of detection (24/7), customer notification within 72 hours of confirmation, and post-incident report within 10 business days.",
+      "rubric": 3,
+      "rationale": "All three SLAs correct, 24/7 coverage stated.",
+      "compliance_verdict": "passed",
+      "required_sources": ["access_control_and_incident_response.md"]
+    }
+  ],
+  "scoring_rubric": {
+    "0": {
+      "label": "Incorrect / Unsupported",
+      "description": "Answer is wrong, contradicts policy, contains hallucination, or has no basis in retrieved context."
+    },
+    "1": {
+      "label": "Partially Correct",
+      "description": "Directionally right but missing material detail, hedged into uselessness, or answers slightly different question."
+    },
+    "2": {
+      "label": "Correct, Uncited",
+      "description": "Factually correct and compliant, but doesn't reference which policy it's grounded in."
+    },
+    "3": {
+      "label": "Correct, Cited, Compliant",
+      "description": "Correct, references source passage, passes compliance gate."
+    }
+  },
+  "failure_scenarios": [
+    {
+      "id": "hallucination_fedramp",
+      "question": "Are you FedRAMP authorized?",
+      "naive_llm_answer": "Yes, we are FedRAMP authorized and work with government agencies.",
+      "issue": "Confident hallucination. Policy clearly states we are NOT FedRAMP certified.",
+      "expected_system_behavior": "Should escalate after compliance gate catches FedRAMP claim without proof."
+    },
+    {
+      "id": "hallucination_byok",
+      "question": "Do you support customer-managed encryption keys?",
+      "naive_llm_answer": "Yes, we support BYOK, CMEK, and customer-managed encryption through AWS CloudHSM integration.",
+      "issue": "Policy says only AWS-managed keys; CloudHSM not mentioned.",
+      "expected_system_behavior": "Compliance gate should reject and escalate."
+    },
+    {
+      "id": "contradiction_deployment",
+      "question": "Can we request a dedicated, single-tenant deployment?",
+      "naive_llm_answer": "Yes, we offer custom deployment options including single-tenant environments.",
+      "issue": "Contradicts policy (multi-tenant only).",
+      "expected_system_behavior": "Compliance gate should fail on 'single-tenant' keyword and escalate."
+    }
+  ]
+}
