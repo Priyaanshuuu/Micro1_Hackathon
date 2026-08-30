@@ -2,17 +2,19 @@
 
 ## Prerequisites
 - **Python** ≥ 3.10 — check with `python --version`.
-- An **OpenAI API key** with access to a chat-completions-capable model.
-- No external database or paid vector store required — everything runs against an in-process local vector store, so there's nothing else to provision.
+- A **Groq API key** (free tier available at https://console.groq.com)
+- No external database or paid vector store required — everything runs against an in-process local vector store with HuggingFace embeddings (free, local)
 
 ## Key Dependencies
 | Package | Role |
 |---|---|
 | `langgraph` | Defines the agent state graph — nodes, edges, and the retry/escalation routing logic. |
-| `langchain-openai` | LLM calls (drafting, compliance checks) and embeddings (indexing + retrieval). |
+| `langchain-groq` | LLM calls (drafting, compliance checks) via Groq API. |
+| `langchain-huggingface` | Embeddings (indexing + retrieval) using HuggingFace models locally. |
 | `langchain-core` | Core LangChain primitives for RAG and vector stores. |
 | `pandas` | Parses the input RFP CSV and writes the output response CSV. |
 | `pydantic` | Type validation and structured output parsing. |
+| `sentence-transformers` | Embedding model (runs locally, no API key needed). |
 
 ## Project Structure (Target Layout)
 ```
@@ -41,12 +43,16 @@ rfp-auto-responder/
 *This is the target structure we'll build toward file-by-file in Step 2 — exact filenames may be refined slightly as we go, and this doc will be kept in sync.*
 
 ## Environment Variables
-Copy `.env.example` to `.env` and fill in your key:
+Copy `.env.example` to `.env` and fill in your Groq API key:
 ```
-OPENAI_API_KEY=sk-...
-MODEL_NAME=gpt-4o-mini
+GROQ_API_KEY=gsk_...your_key_here...
+MODEL_NAME=openai/gpt-oss-20b
+EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+RETRIEVAL_K=4
 MAX_COMPLIANCE_RETRIES=2
 ```
+
+**Get a Groq API key:** https://console.groq.com (free tier includes 2 million tokens/month)
 
 ## Install
 ```bash
@@ -55,15 +61,25 @@ cd rfp-auto-responder
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
-# Create .env and add your OPENAI_API_KEY
+
+# Copy .env.example and add your Groq API key
+cp .env.example .env
+# Edit .env and replace gsk_your-key-here with your actual Groq API key
 ```
 
 ## Step 1 — Build the Vector Store
-Embeds the synthetic policy documents in `data/policies/` into a local vector index:
+Embeds the synthetic policy documents in `data/policies/` into a local vector index using HuggingFace embeddings (no API key needed):
 ```bash
-python -m src.ingest.build_vector_store
+python -m src.ingest
 ```
-**Expected output:** a log line confirming how many policy chunks were embedded and indexed.
+**Expected output:**
+```
+✅ Ingested 42 chunks from 4 policy document(s)
+   Saved to: data/vector_store.json
+   Embedding model: sentence-transformers/all-MiniLM-L6-v2
+
+   Ready to run: python -m src.main --input samples/sample_rfp.csv --output output/responses.csv
+```
 
 ## Step 2 — Run the Pipeline Against a Sample RFP
 ```bash

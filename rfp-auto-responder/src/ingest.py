@@ -14,14 +14,14 @@ from typing import List
 from dotenv import load_dotenv
 from langchain_core.documents import Document
 from langchain_core.vectorstores import InMemoryVectorStore
-from langchain_openai import OpenAIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import MarkdownHeaderTextSplitter, RecursiveCharacterTextSplitter
 
 load_dotenv()
 
 POLICIES_DIR = Path("data/policies")
 VECTOR_STORE_PATH = Path("data/vector_store.json")
-EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL", "text-embedding-3-small")
+EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
 
 # Split on headers first so each chunk stays on a single topic and carries
 # its document title / section / subsection as metadata; anything still
@@ -70,16 +70,15 @@ def load_policy_documents() -> List[Document]:
 
 
 def build_vector_store(chunks: List[Document]) -> InMemoryVectorStore:
-    embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL)
+    """Build vector store using HuggingFace embeddings (free, local)."""
+    embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
     store = InMemoryVectorStore(embeddings)
     store.add_documents(documents=chunks)
     return store
 
 
 def main() -> None:
-    if not os.environ.get("OPENAI_API_KEY"):
-        raise SystemExit("OPENAI_API_KEY is not set. Copy .env.example to .env and add your key.")
-
+    """Ingest policies into vector store. No API key required (uses local embeddings)."""
     chunks = load_policy_documents()
     store = build_vector_store(chunks)
 
@@ -87,7 +86,10 @@ def main() -> None:
     store.dump(str(VECTOR_STORE_PATH))
 
     source_count = len({chunk.metadata["source"] for chunk in chunks})
-    print(f"Ingested {len(chunks)} chunks from {source_count} policy document(s) -> {VECTOR_STORE_PATH}")
+    print(f"✅ Ingested {len(chunks)} chunks from {source_count} policy document(s)")
+    print(f"   Saved to: {VECTOR_STORE_PATH}")
+    print(f"   Embedding model: {EMBEDDING_MODEL}")
+    print(f"\n   Ready to run: python -m src.main --input samples/sample_rfp.csv --output output/responses.csv")
 
 
 if __name__ == "__main__":
