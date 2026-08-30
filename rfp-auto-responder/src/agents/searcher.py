@@ -62,7 +62,7 @@ Generate a search query that specifically addresses the compliance issue raised.
 
     vector_store = InMemoryVectorStore.load(
         str(vector_store_path),
-        embeddings=embeddings
+        embedding=embeddings
     )
 
     # Retrieve top K chunks

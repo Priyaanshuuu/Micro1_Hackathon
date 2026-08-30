@@ -1,28 +1,16 @@
-# Data Retention and Deletion
+# Data Retention & Deletion Policy
 
-## Active Customer Data Retention
-Customer data remains accessible and backed up for the duration of an active subscription. We retain:
-- Transactional data and application state indefinitely while the account is active
-- Audit logs for **2 years** from the date of event occurrence
-- System access logs for **90 days**
+## Active Account Data
+Customer data is retained for the duration of the active subscription with no default expiration.
 
-## Data Deletion After Account Closure
-Upon account cancellation or subscription termination:
-- Customer data is **soft-deleted immediately** (marked for deletion, no longer accessible via UI or API)
-- **Hard deletion from production databases occurs within 30 days** of account closure
-- **Backup retention**: deleted data may persist in encrypted backups for up to **90 days** after hard deletion to support disaster recovery obligations
+## Post-Termination Retention
+Upon contract termination, data is retained read-only for **30 days** to support export requests, then permanently deleted from production systems.
 
-After 90 days post-termination, no customer data remains in any system, including backups.
+## Backup Retention
+Encrypted backups are retained for **35 days** on a rolling basis and purged automatically — including backups containing data from terminated accounts.
 
-## Customer-Initiated Deletion Requests
-Customers can request immediate deletion of specific data records or entire accounts through:
-- Self-service deletion tools in the application (for individual records)
-- Support ticket requesting expedited account deletion
+## Right to Erasure
+Individual deletion requests (GDPR Art. 17, CCPA) are processed within **30 days** of a verified request. Residual copies in encrypted backups age out within the 35-day backup window.
 
-Expedited deletion requests are processed within **7 business days**.
-
-## Legal Hold and Compliance Exceptions
-In cases of active litigation, regulatory investigation, or legal preservation requirements, we may suspend standard deletion timelines for affected data until the hold is released. Customers will be notified if their data is subject to such a hold.
-
-## Deleted Account Data Recovery
-Once an account has been hard-deleted (30 days after cancellation), **data recovery is not possible**. Customers are responsible for exporting data they wish to retain before initiating account closure.
+## Data Export
+Customers may export data any time during an active subscription, and may request a final export during the 30-day post-termination window.

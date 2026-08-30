@@ -1,24 +1,16 @@
-# Data Security and Hosting
+# Data Security & Hosting Policy
 
-## Hosting Model
-Our platform operates as a **multi-tenant SaaS solution** hosted exclusively on cloud infrastructure. We do not offer on-premise deployments, self-hosted installations, or single-tenant dedicated environments.
-
-All customer data is hosted on **AWS (Amazon Web Services)** infrastructure in the us-east-1 and eu-west-1 regions, depending on customer preference selected during onboarding.
-
-## Encryption at Rest
-All customer data stored in our production databases and object storage is encrypted at rest using **AES-256 encryption**. Encryption keys are managed by AWS Key Management Service (KMS) using **AWS-managed keys**.
-
-We do **not** support customer-managed encryption keys (BYOK/CMEK) at this time. All encryption key lifecycle management is handled by our cloud provider.
+## Deployment Model
+The Platform is delivered exclusively as multi-tenant SaaS hosted on public cloud infrastructure (AWS, us-east-1 and eu-west-1). **On-premise, self-hosted, or single-tenant dedicated deployments are not offered or supported.**
 
 ## Encryption in Transit
-All data transmission between client applications and our API endpoints uses **TLS 1.2 or higher**. We enforce HTTPS for all connections and do not support unencrypted HTTP traffic.
+All data in transit is encrypted using TLS 1.2 or higher. Internal service-to-service traffic within the production network uses mutual TLS.
 
-Internal communication between microservices within our AWS VPC also uses TLS encryption.
+## Encryption at Rest
+All customer data at rest is encrypted using AES-256. Keys are managed exclusively by the Platform's cloud KMS; **customer-managed encryption keys (CMEK/BYOK) are not currently supported** for production workloads. Keys rotate automatically every 90 days.
 
 ## Network Security
-Production infrastructure resides in private subnets within AWS VPCs with no direct internet exposure. Public access is limited to our API Gateway and CDN endpoints, both protected by AWS WAF (Web Application Firewall) rules.
-
-Database instances are accessible only from application servers within the VPC and require IAM-based authentication.
+Production infrastructure sits in a private VPC with no direct public access to application servers or databases. External access passes through a WAF and load balancer with rate limiting and DDoS protection.
 
 ## Data Residency
-Customers can select their primary data region (US or EU) during account setup. Once selected, all customer data remains within that geographic region and is not replicated cross-region without explicit customer consent.
+Enterprise customers may select a US or EU hosting region at onboarding. Data does not leave that region except for encrypted DR backups replicated within the same jurisdiction (US↔US, EU↔EU).
