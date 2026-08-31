@@ -265,6 +265,41 @@ See `Docs/03_AGENT_EVALUATION.md` for full methodology.
 
 ---
 
+## ⚙️ Customizing Compliance Rules
+
+Compliance rules are now **configurable without code changes**. Edit `src/compliance_rules.json`:
+
+```json
+{
+  "compliance_rules": [
+    {
+      "id": "no_on_premise",
+      "name": "No On-Premise Deployment Claims",
+      "enabled": true,
+      "keywords": ["on-premise", "self-hosted", "single-tenant"],
+      "denial_keywords": ["do not offer", "not support"],
+      "violated_rule": "no on-premise deployment claims",
+      "feedback": "Our platform is multi-tenant SaaS only..."
+    }
+  ],
+  "allowed_certifications": ["SOC 2 Type II", "ISO 27001"],
+  "groundedness_check": { "enabled": true }
+}
+```
+
+**Customize by:**
+1. Editing `src/compliance_rules.json`
+2. Add/remove/disable rules as needed
+3. Restart the system
+4. No code changes required ✅
+
+**Example: Allow FedRAMP claims** (if your company gets certified):
+- Find the FedRAMP rule → set `"enabled": false`
+- Or modify keywords/denials as needed
+- Changes apply immediately on next run
+
+---
+
 ## 🛠️ Common Issues
 
 | Problem | Solution |

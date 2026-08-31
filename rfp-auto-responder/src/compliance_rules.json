@@ -1,0 +1,108 @@
+{
+  "compliance_rules": [
+    {
+      "id": "no_on_premise",
+      "name": "No On-Premise Deployment Claims",
+      "description": "Reject any answer claiming on-premise, self-hosted, or single-tenant deployment support",
+      "enabled": true,
+      "keywords": [
+        "on-premise",
+        "on premise",
+        "self-hosted",
+        "self hosted",
+        "single-tenant",
+        "single tenant",
+        "dedicated environment",
+        "private cloud"
+      ],
+      "denial_keywords": [
+        "do not offer",
+        "not support",
+        "not available",
+        "not provide",
+        "exclusively",
+        "multi-tenant only"
+      ],
+      "violated_rule": "no on-premise deployment claims",
+      "feedback": "The answer suggests on-premise/self-hosted deployment support. Our platform is multi-tenant SaaS only - we do not offer on-premise, self-hosted, or single-tenant deployments."
+    },
+    {
+      "id": "no_byok",
+      "name": "No Customer-Managed Encryption Keys",
+      "description": "Reject claims about BYOK/CMEK support",
+      "enabled": true,
+      "keywords": [
+        "byok",
+        "bring your own key",
+        "cmek",
+        "customer-managed key",
+        "customer managed key",
+        "customer-provided key"
+      ],
+      "denial_keywords": [
+        "do not support",
+        "not support",
+        "not available",
+        "aws-managed",
+        "provider-managed"
+      ],
+      "violated_rule": "no BYOK/CMEK support claims",
+      "feedback": "The answer suggests customer-managed encryption key support. We use AWS-managed KMS keys only - customer-managed keys (BYOK/CMEK) are not supported."
+    },
+    {
+      "id": "no_fedramp",
+      "name": "No Unauthorized Certifications - FedRAMP",
+      "description": "Reject claims of FedRAMP certification if not actually held",
+      "enabled": true,
+      "prohibited_claims": ["fedramp"],
+      "denial_keywords": [
+        "not certified",
+        "do not hold",
+        "not currently certified",
+        "not fedramp compliant"
+      ],
+      "violated_rule": "no FedRAMP certification claims",
+      "feedback": "The answer suggests FedRAMP certification. We are NOT certified for FedRAMP. Only claim certifications we actually hold: SOC 2 Type II and ISO 27001."
+    },
+    {
+      "id": "no_hipaa",
+      "name": "No Unauthorized Certifications - HIPAA",
+      "description": "Reject claims of HIPAA compliance if not actually held",
+      "enabled": true,
+      "prohibited_claims": ["hipaa"],
+      "denial_keywords": [
+        "not certified",
+        "do not hold",
+        "not currently certified",
+        "not hipaa compliant"
+      ],
+      "violated_rule": "no HIPAA certification claims",
+      "feedback": "The answer suggests HIPAA compliance. We are NOT HIPAA compliant. Only claim certifications we actually hold: SOC 2 Type II and ISO 27001."
+    },
+    {
+      "id": "no_hitrust",
+      "name": "No Unauthorized Certifications - HITRUST",
+      "description": "Reject claims of HITRUST certification if not actually held",
+      "enabled": true,
+      "prohibited_claims": ["hitrust"],
+      "denial_keywords": [
+        "not certified",
+        "do not hold",
+        "not currently certified",
+        "not hitrust compliant"
+      ],
+      "violated_rule": "no HITRUST certification claims",
+      "feedback": "The answer suggests HITRUST certification. We are NOT HITRUST certified. Only claim certifications we actually hold: SOC 2 Type II and ISO 27001."
+    }
+  ],
+  "allowed_certifications": [
+    "SOC 2 Type II",
+    "ISO 27001"
+  ],
+  "groundedness_check": {
+    "enabled": true,
+    "description": "Verify that every claim in the answer is supported by retrieved context"
+  },
+  "max_retries": 2,
+  "notes": "Edit this file to customize compliance rules. Each rule can be disabled with 'enabled': false. Restart the system for changes to take effect."
+}
