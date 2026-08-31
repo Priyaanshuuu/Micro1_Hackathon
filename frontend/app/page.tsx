@@ -4,6 +4,10 @@ import { MetricsCard } from './components/MetricsCard';
 import { ScoreDistributionChart } from './components/ScoreDistributionChart';
 import { ResponsesSummary } from './components/ResponsesSummary';
 import { HumanReviewQueue } from './components/HumanReviewQueue';
+import { LastUpdated } from './components/LastUpdated';
+import { ComplianceGateVisualizer } from './components/ComplianceGateVisualizer';
+import { RetryFlowVisualizer } from './components/RetryFlowVisualizer';
+import { BaselineComparison } from './components/BaselineComparison';
 
 export default function Dashboard() {
   return (
@@ -20,19 +24,32 @@ export default function Dashboard() {
                 Real-time evaluation metrics and compliance monitoring
               </p>
             </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              Last updated: {new Date().toLocaleString()}
-            </div>
+            <LastUpdated />
           </div>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Baseline Comparison - Show competitive advantage first */}
+        <section className="mb-8">
+          <BaselineComparison />
+        </section>
+
         {/* Critical Metrics Section */}
         <section className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">🎯 Critical Metrics</h2>
           <MetricsCard />
+        </section>
+
+        {/* Live Compliance Gate Visualization */}
+        <section className="mb-8">
+          <ComplianceGateVisualizer />
+        </section>
+
+        {/* Self-Correction Flow */}
+        <section className="mb-8">
+          <RetryFlowVisualizer />
         </section>
 
         {/* Response Summary Section */}

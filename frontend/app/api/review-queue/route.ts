@@ -1,7 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
-import csv from 'csv-parse/sync';
+
+function parseCSV(csvContent: string): Record<string, string>[] {
+  const lines = csvContent.trim().split('\n');
+  if (lines.length === 0) return [];
+
+  const headers = lines[0].split(',').map(h => h.trim());
+  const records: Record<string, string>[] = [];
+
+  for (let i = 1; i < lines.length; i++) {
+    if (!lines[i].trim()) continue;
+    const values = lines[i].split(',').map(v => v.trim());
+    const record: Record<string, string> = {};
+    
+    headers.forEach((header, index) => {
+      record[header] = values[index] || '';
+    });
+    
+    records.push(record);
+  }
+
+  return records;
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,15 +41,12 @@ export async function GET(request: NextRequest) {
           escalated_questions: [],
           total: 0
         },
-        { status: 200 } // Return 200 with empty data instead of 404
+        { status: 200 }
       );
     }
 
     const fileContent = fs.readFileSync(csvPath, 'utf-8');
-    const records = csv.parse(fileContent, {
-      columns: true,
-      skip_empty_lines: true
-    });
+    const records = parseCSV(fileContent);
 
     return NextResponse.json({
       escalated_questions: records,
